@@ -1050,10 +1050,18 @@ func (oAdmin *OvpnAdmin) userRevoke(username string) (error, string) {
 		} else {
 			o := runBash(fmt.Sprintf("cd %[1]s && echo yes | %[2]s revoke %[3]s 1>/dev/null && %[2]s gen-crl 1>/dev/null", *easyrsaDirPath, *easyrsaBinPath, username))
 			log.Debugln(o)
+
+			rmCrlCmd := "rm -f /etc/openvpn/server/crl.pem"
+			o = runBash(rmCrlCmd)
+			log.Debugln(o)
+
+			cpCrlCmd := "cp /etc/openvpn/server/easyrsa/pki/crl.pem /etc/openvpn/server/crl.pem"
+			o = runBash(cpCrlCmd)
+			log.Debugln(o)
 		}
 
 		if *authByPassword {
-			o := runBash(fmt.Sprintf("openvpn-user revoke --db-path %s --user %s", *authDatabase, username))
+			o := runBash(fmt.Sprintf("openvpn-user revoke --db.path %s --user %s", *authDatabase, username))
 			log.Debug(o)
 		}
 
@@ -1115,7 +1123,7 @@ func (oAdmin *OvpnAdmin) userUnrevoke(username string) (error, string) {
 						_ = runBash(fmt.Sprintf("cd %s && %s gen-crl 1>/dev/null", *easyrsaDirPath, *easyrsaBinPath))
 
 						if *authByPassword {
-							o := runBash(fmt.Sprintf("openvpn-user restore --db-path %s --user %s", *authDatabase, username))
+							o := runBash(fmt.Sprintf("openvpn-user restore --db.path %s --user %s", *authDatabase, username))
 							log.Debug(o)
 						}
 
