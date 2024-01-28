@@ -1058,6 +1058,11 @@ func (oAdmin *OvpnAdmin) userRevoke(username string) (error, string) {
 			cpCrlCmd := "cp /etc/openvpn/server/easyrsa/pki/crl.pem /etc/openvpn/server/crl.pem"
 			o = runBash(cpCrlCmd)
 			log.Debugln(o)
+
+			chownCrlCmd := fmt.Sprintf("chown nobody:%s /etc/openvpn/server/crl.pem", "nogroup")
+			o = runBash(chownCrlCmd)
+			log.Debugln(o)
+
 		}
 
 		if *authByPassword {
